@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 void main() {
@@ -70,11 +71,17 @@ class WebViewExampleState extends State<WebViewExample> {
                 },
                 child: const Text('google'),
               ),
+              ElevatedButton(
+                onPressed: () {
+                  _loadHtmlFromAssets();
+                },
+                child: const Text('assets'),
+              ),
             ],
           ),
           Expanded(
             child: WebView(
-              initialUrl: 'https://ssac-flutter.github.io/webview/test.html',
+              initialUrl: 'https://google.com',
               javascriptMode: JavascriptMode.unrestricted,
               onWebViewCreated: (controller) {
                 _controller = controller;
@@ -105,6 +112,17 @@ class WebViewExampleState extends State<WebViewExample> {
           ),
         ],
       ),
+    );
+  }
+
+  _loadHtmlFromAssets() async {
+    String fileText = await rootBundle.loadString('assets/test.html');
+    _controller.loadUrl(
+      Uri.dataFromString(
+        fileText,
+        mimeType: 'text/html',
+        encoding: Encoding.getByName('utf-8'),
+      ).toString(),
     );
   }
 }
