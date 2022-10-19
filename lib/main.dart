@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -42,40 +44,67 @@ class WebViewExampleState extends State<WebViewExample> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                _controller.goBack();
-              },
-              child: const Text('<-'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _controller.goForward();
-              },
-              child: const Text('->'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _controller.loadUrl('https://google.com');
-              },
-              child: const Text('google'),
-            ),
-          ],
-        ),
-        Expanded(
-          child: WebView(
-            initialUrl: 'https://naver.com',
-            javascriptMode: JavascriptMode.unrestricted,
-            onWebViewCreated: (controller) {
-              _controller = controller;
-            },
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(''),
+      ),
+      body: Column(
+        children: [
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  _controller.goBack();
+                },
+                child: const Text('<-'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _controller.goForward();
+                },
+                child: const Text('->'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _controller.loadUrl('https://google.com');
+                },
+                child: const Text('google'),
+              ),
+            ],
           ),
-        ),
-      ],
+          Expanded(
+            child: WebView(
+              initialUrl: 'https://ssac-flutter.github.io/webview/test.html',
+              javascriptMode: JavascriptMode.unrestricted,
+              onWebViewCreated: (controller) {
+                _controller = controller;
+              },
+              javascriptChannels: {
+                JavascriptChannel(
+                  name: 'myChannel',
+                  onMessageReceived: (JavascriptMessage message) {
+                    log(message.message);
+                    Map<String, dynamic> json = jsonDecode(message.message);
+
+                    final snackBar = SnackBar(
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(json['title']),
+                          Text(json['body']),
+                          Text('${json['id']}'),
+                        ],
+                      ),
+                    );
+
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  },
+                )
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
